@@ -24,3 +24,7 @@ class DatabaseGateway(ABC):
     async def update_meme_by_id(self, meme_id: int, meme_data: MemeUpdate) -> Optional[int]:
         raise NotImplementedError
 
+    @abstractmethod
+    async def get_meme_by_id(self, meme_id: int) -> Optional[Meme]:
+        raise NotImplementedError
+

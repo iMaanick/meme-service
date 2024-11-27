@@ -21,3 +21,11 @@ async def update_meme_by_id(
     updated_organization_id = await database.update_meme_by_id(meme_id, meme_data)
     await uow.commit()
     return updated_organization_id
+
+
+async def get_meme_data(
+        meme_id: int,
+        database: DatabaseGateway,
+) -> Optional[Meme]:
+    meme = await database.get_meme_by_id(meme_id)
+    return meme

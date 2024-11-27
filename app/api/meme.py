@@ -15,6 +15,12 @@ async def create_meme(
         meme_data: MemeCreate,
         database: Annotated[DatabaseGateway, Depends()],
 ) -> Meme:
+    """
+    Create a new meme.
+
+    Returns:
+        Meme: The created meme.
+    """
     meme = await add_meme(meme_data, database)
     return meme
 
@@ -26,6 +32,15 @@ async def update_meme(
         database: Annotated[DatabaseGateway, Depends()],
         uow: Annotated[UoW, Depends()],
 ) -> UpdateMemeResponse:
+    """
+    Update an existing meme by its ID.
+
+    Returns:
+        UpdateMemeResponse: Response indicating the update status.
+
+    Raises:
+        HTTPException: If the meme is not found.
+    """
     updated_meme_id = await update_meme_by_id(meme_id, meme_data, database, uow)
     if not updated_meme_id:
         raise HTTPException(status_code=404, detail="Meme not found")
@@ -37,6 +52,15 @@ async def get_meme(
         meme_id: int,
         database: Annotated[DatabaseGateway, Depends()],
 ) -> Meme:
+    """
+    Retrieve a specific meme by its ID.
+
+    Returns:
+        Meme: The retrieved meme.
+
+    Raises:
+        HTTPException: If the meme is not found.
+    """
     meme = await get_meme_data(meme_id, database)
     if not meme:
         raise HTTPException(status_code=404, detail="Data not found for specified meme_id.")
@@ -49,17 +73,32 @@ async def get_memes(
         skip: int = 0,
         limit: int = 10,
 ) -> list[Meme]:
+    """
+    Retrieve a list of memes with pagination.
+
+    Returns:
+        list[Meme]: List of memes.
+    """
     memes = await get_memes_data(skip, limit, database)
     return memes
 
 
 @meme_router.delete("/", response_model=DeleteMemeResponse)
-async def delete_organization_by_id(
+async def delete_meme_by_id(
         meme_id: int,
         database: Annotated[DatabaseGateway, Depends()],
         uow: Annotated[UoW, Depends()],
 ) -> DeleteMemeResponse:
-    deleted_organization_id = await delete_meme(meme_id, database, uow)
-    if not deleted_organization_id:
+    """
+    Delete a meme by its ID.
+
+    Returns:
+        DeleteMemeResponse: Response indicating whether the meme was successfully deleted.
+
+    Raises:
+        HTTPException: If the meme is not found.
+    """
+    deleted_meme_id = await delete_meme(meme_id, database, uow)
+    if not deleted_meme_id:
         raise HTTPException(status_code=404, detail="Meme not found")
     return DeleteMemeResponse(detail="Meme deleted successfully")

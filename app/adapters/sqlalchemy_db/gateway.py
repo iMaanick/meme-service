@@ -9,7 +9,7 @@ from app.application.protocols.database import DatabaseGateway
 
 
 class SqlaGateway(DatabaseGateway):
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
     async def add_meme(self, meme_data: MemeCreate) -> Meme:
@@ -18,9 +18,14 @@ class SqlaGateway(DatabaseGateway):
             image_url=meme_data.image_url,
         )
         self.session.add(new_meme)
-        print(new_meme)
         await self.session.commit()
         return Meme.model_validate(new_meme)
+
+    async def get_memes(self, skip: int, limit: int) -> list[Meme]:
+        query = select(models.Meme).offset(skip).limit(limit)
+        result = await self.session.execute(query)
+        memes = [Meme.model_validate(meme) for meme in result.scalars().all()]
+        return memes
 
     async def get_meme_by_id(self, meme_id: int) -> Optional[Meme]:
         query = select(models.Meme).where(models.Meme.id == meme_id)

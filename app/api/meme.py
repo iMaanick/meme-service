@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.application.meme import add_meme, update_meme_by_id, get_meme_data
+from app.application.meme import add_meme, update_meme_by_id, get_meme_data, get_memes_data
 from app.application.models import MemeCreate, Meme, MemeUpdate
 from app.application.models.meme import UpdateMemeResponse
 from app.application.protocols.database import DatabaseGateway, UoW
@@ -41,3 +41,13 @@ async def get_meme(
     if not meme:
         raise HTTPException(status_code=404, detail="Data not found for specified meme_id.")
     return meme
+
+
+@meme_router.get("/", response_model=list[Meme])
+async def get_memes(
+        database: Annotated[DatabaseGateway, Depends()],
+        skip: int = 0,
+        limit: int = 10,
+) -> list[Meme]:
+    memes = await get_memes_data(skip, limit, database)
+    return memes

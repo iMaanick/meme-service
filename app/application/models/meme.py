@@ -16,3 +16,8 @@ class MemeCreate(BaseModel):
 class MemeUpdate(BaseModel):
     description: str
     image_url: str
+
+
+class UpdateMemeResponse(BaseModel):
+    detail: str
+

@@ -1,8 +1,7 @@
-import datetime
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from app.application.models.meme import MemeCreate, Meme
+from app.application.models.meme import MemeCreate, Meme, MemeUpdate
 
 
 class UoW(ABC):
@@ -19,5 +18,9 @@ class DatabaseGateway(ABC):
 
     @abstractmethod
     async def add_meme(self, price_data: MemeCreate) -> Meme:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def update_meme_by_id(self, meme_id: int, meme_data: MemeUpdate) -> Optional[int]:
         raise NotImplementedError
 

@@ -38,3 +38,13 @@ async def get_memes_data(
 ) -> list[Meme]:
     memes = await database.get_memes(skip, limit)
     return memes
+
+
+async def delete_meme(
+        meme_id: int,
+        database: DatabaseGateway,
+        uow: UoW,
+) -> Optional[int]:
+    deleted_meme_id = await database.delete_meme_by_id(meme_id)
+    await uow.commit()
+    return deleted_meme_id

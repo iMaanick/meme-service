@@ -2,9 +2,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.application.meme import add_meme, update_meme_by_id, get_meme_data, get_memes_data
+from app.application.meme import add_meme, update_meme_by_id, get_meme_data, get_memes_data, delete_meme
 from app.application.models import MemeCreate, Meme, MemeUpdate
-from app.application.models.meme import UpdateMemeResponse
+from app.application.models.meme import UpdateMemeResponse, DeleteMemeResponse
 from app.application.protocols.database import DatabaseGateway, UoW
 
 meme_router = APIRouter()
@@ -51,3 +51,15 @@ async def get_memes(
 ) -> list[Meme]:
     memes = await get_memes_data(skip, limit, database)
     return memes
+
+
+@meme_router.delete("/", response_model=DeleteMemeResponse)
+async def delete_organization_by_id(
+        meme_id: int,
+        database: Annotated[DatabaseGateway, Depends()],
+        uow: Annotated[UoW, Depends()],
+) -> DeleteMemeResponse:
+    deleted_organization_id = await delete_meme(meme_id, database, uow)
+    if not deleted_organization_id:
+        raise HTTPException(status_code=404, detail="Meme not found")
+    return DeleteMemeResponse(detail="Meme deleted successfully")

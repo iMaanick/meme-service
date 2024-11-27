@@ -21,3 +21,6 @@ class MemeUpdate(BaseModel):
 class UpdateMemeResponse(BaseModel):
     detail: str
 
+
+class DeleteMemeResponse(BaseModel):
+    detail: str

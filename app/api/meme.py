@@ -11,16 +11,11 @@ from app.application.protocols.database import DatabaseGateway, UoW
 meme_router = APIRouter()
 
 
-async def get_http_client() -> AsyncClient:
-    """Возвращает общий HTTP клиент для обращения к приватному сервису."""
-    async with AsyncClient() as client:
-        yield client
-
-
 @meme_router.post("/", response_model=Meme)
 async def create_meme(
         meme_data: MemeCreate,
         database: Annotated[DatabaseGateway, Depends()],
+        http_client: Annotated[AsyncClient, Depends()],
 ) -> Meme:
     """
     Create a new meme.
@@ -77,7 +72,7 @@ async def get_meme(
 @meme_router.get("/", response_model=list[Meme])
 async def get_memes(
         database: Annotated[DatabaseGateway, Depends()],
-        http_client: AsyncClient = Depends(get_http_client),
+        http_client: Annotated[AsyncClient, Depends()],
         skip: int = 0,
         limit: int = 10,
 ) -> list[Meme]:

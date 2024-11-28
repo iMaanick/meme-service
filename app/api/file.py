@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 
 from app.application.file import save_file, delete_file_by_filename, get_url_by_filename, validate_image_file
 from app.application.models.file import UploadFileResponse, DeleteFileResponse, GetFileUrlResponse

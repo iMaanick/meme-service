@@ -4,6 +4,7 @@ from typing import AsyncGenerator
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from app.adapters.minio.gateway import MinioGateway
@@ -51,12 +52,18 @@ async def get_minio_client() -> AsyncGenerator[MinioGateway, None]:
     yield MinioGateway()
 
 
+async def get_http_client() -> AsyncClient:
+    async with AsyncClient() as client:
+        yield client
+
+
 def init_dependencies(app: FastAPI) -> None:
     session_maker = create_session_maker()
 
     app.dependency_overrides[AsyncSession] = partial(new_session, session_maker)
     app.dependency_overrides[DatabaseGateway] = new_gateway
     app.dependency_overrides[UoW] = new_uow
+    app.dependency_overrides[AsyncClient] = get_http_client
 
 
 def init_private_dependencies(app: FastAPI) -> None:

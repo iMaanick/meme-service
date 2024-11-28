@@ -26,3 +26,4 @@ archive.zip
 /docker-compose.minio.yml
 /docker-compose.minio2.yml
 /main.py
+/minio/

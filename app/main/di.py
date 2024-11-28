@@ -6,9 +6,10 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
+from app.adapters.minio.gateway import MinioGateway
 from app.adapters.sqlalchemy_db.gateway import SqlaGateway
 from app.api.depends_stub import Stub
-from app.application.protocols.database import UoW, DatabaseGateway
+from app.application.protocols.database import UoW, DatabaseGateway, S3StorageGateway
 
 
 async def new_gateway(
@@ -46,9 +47,17 @@ async def new_session(session_maker: async_sessionmaker[AsyncSession]) -> AsyncG
         yield session
 
 
+async def get_minio_client() -> AsyncGenerator[MinioGateway, None]:
+    yield MinioGateway()
+
+
 def init_dependencies(app: FastAPI) -> None:
     session_maker = create_session_maker()
 
     app.dependency_overrides[AsyncSession] = partial(new_session, session_maker)
     app.dependency_overrides[DatabaseGateway] = new_gateway
     app.dependency_overrides[UoW] = new_uow
+
+
+def init_private_dependencies(app: FastAPI) -> None:
+    app.dependency_overrides[S3StorageGateway] = get_minio_client

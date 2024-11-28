@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from fastapi import UploadFile
+
 from app.application.models.meme import MemeCreate, Meme, MemeUpdate
 
 
@@ -37,3 +39,16 @@ class DatabaseGateway(ABC):
         raise NotImplementedError
 
 
+class S3StorageGateway(ABC):
+
+    @abstractmethod
+    async def upload_file(self, file: UploadFile) -> Optional[str]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def delete_file(self, file_name: str) -> Optional[str]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_file_url(self, file_name: str) -> str:
+        raise NotImplementedError

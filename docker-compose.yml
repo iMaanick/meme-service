@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  public_service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: public_service
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "sqlite+aiosqlite:///./test.db"
+    command: >
+      poetry run uvicorn --factory app.main:create_app --host 0.0.0.0 --port 8000
+    depends_on:
+      - private_service
+    networks:
+      - app_network
+
+  private_service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: private_service
+    environment:
+      MINIO_URL: "http://minio:9000"
+      MINIO_ACCESS_KEY: "minioadmin"
+      MINIO_SECRET_KEY: "minioadmin"
+    command: >
+      poetry run uvicorn --factory app.main:create_private_app --host 0.0.0.0 --port 8001
+    depends_on:
+      - minio
+    networks:
+      - app_network
+
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+    command: server /data
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge

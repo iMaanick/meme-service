@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from httpx import AsyncClient
 
 from app.application.meme import add_meme, update_meme_by_id, get_meme_data, get_memes_data, delete_meme
 from app.application.models import MemeCreate, Meme, MemeUpdate
@@ -8,6 +9,12 @@ from app.application.models.meme import UpdateMemeResponse, DeleteMemeResponse
 from app.application.protocols.database import DatabaseGateway, UoW
 
 meme_router = APIRouter()
+
+
+async def get_http_client() -> AsyncClient:
+    """Возвращает общий HTTP клиент для обращения к приватному сервису."""
+    async with AsyncClient() as client:
+        yield client
 
 
 @meme_router.post("/", response_model=Meme)
@@ -70,6 +77,7 @@ async def get_meme(
 @meme_router.get("/", response_model=list[Meme])
 async def get_memes(
         database: Annotated[DatabaseGateway, Depends()],
+        http_client: AsyncClient = Depends(get_http_client),
         skip: int = 0,
         limit: int = 10,
 ) -> list[Meme]:
@@ -79,6 +87,9 @@ async def get_memes(
     Returns:
         list[Meme]: List of memes.
     """
+    response = await http_client.post("http://localhost:8001/memes/")
+    # response = await http_client.get("http://private_service:8001/memes/")
+    print(response.json())
     memes = await get_memes_data(skip, limit, database)
     return memes
 

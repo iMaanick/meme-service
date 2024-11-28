@@ -1,8 +1,8 @@
-"""Add meme table
+"""Added filename into memes
 
-Revision ID: 3ad15b47e81c
+Revision ID: 9c66485768f0
 Revises: 
-Create Date: 2024-11-27 19:17:06.953846
+Create Date: 2024-11-28 19:55:43.510220
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '3ad15b47e81c'
+revision: str = '9c66485768f0'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -24,6 +24,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('description', sa.String(), nullable=False),
     sa.Column('image_url', sa.String(), nullable=False),
+    sa.Column('filename', sa.String(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

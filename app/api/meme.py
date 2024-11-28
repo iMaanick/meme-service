@@ -87,9 +87,9 @@ async def get_memes(
     Returns:
         list[Meme]: List of memes.
     """
-    response = await http_client.post("http://localhost:8001/memes/")
-    # response = await http_client.get("http://private_service:8001/memes/")
-    print(response.json())
+    # response = await http_client.post("http://localhost:8001/memes/")
+    # # response = await http_client.get("http://private_service:8001/memes/")
+    # print(response.json())
     memes = await get_memes_data(skip, limit, database)
     return memes
 

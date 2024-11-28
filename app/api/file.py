@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 
-from app.application.file import save_file, delete_file_by_filename, get_url_by_filename
+from app.application.file import save_file, delete_file_by_filename, get_url_by_filename, validate_image_file
 from app.application.models.file import UploadFileResponse, DeleteFileResponse, GetFileUrlResponse
 from app.application.protocols.database import S3StorageGateway
 
@@ -11,8 +11,8 @@ private_router = APIRouter(prefix="/files")
 
 @private_router.post("/", response_model=UploadFileResponse)
 async def upload_file(
+        file: Annotated[UploadFile, Depends(validate_image_file)],
         storage: Annotated[S3StorageGateway, Depends()],
-        file: UploadFile = File(...)
 ) -> UploadFileResponse:
     filename = await save_file(file, storage)
     if not filename:

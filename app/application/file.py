@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException, File
 
 from app.application.protocols.database import S3StorageGateway
 
@@ -27,3 +27,13 @@ async def get_url_by_filename(
 ) -> Optional[str]:
     url = await storage.get_file_url(filename)
     return url
+
+
+async def validate_image_file(file: UploadFile = File(...)) -> UploadFile:
+    allowed_image_types = {"image/jpeg", "image/png", "image/gif"}
+    if file.content_type not in allowed_image_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type: {file.content_type}. Only images are allowed."
+        )
+    return file

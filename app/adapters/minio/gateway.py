@@ -7,8 +7,10 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from fastapi import UploadFile
 
+from app.application.protocols.database import S3StorageGateway
 
-class MinioGateway:
+
+class MinioGateway(S3StorageGateway):
     def __init__(self):
         base_url = os.getenv("MINIO_URL", "http://localhost:9000")
 

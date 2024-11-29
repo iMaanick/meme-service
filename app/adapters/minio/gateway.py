@@ -13,12 +13,11 @@ from app.application.protocols.database import S3StorageGateway
 class MinioGateway(S3StorageGateway):
     def __init__(self):
         base_url = os.getenv("MINIO_URL", "http://localhost:9000")
-
         self.client = boto3.client(
             's3',
             endpoint_url=base_url,
-            aws_access_key_id="minioadmin",
-            aws_secret_access_key="minioadmin",
+            aws_access_key_id=os.getenv("MINIO_ACCESS_KEY", "minioadmin"),
+            aws_secret_access_key=os.getenv("MINIO_SECRET_KEY", "minioadmin"),
             region_name="us-east-1"
         )
 

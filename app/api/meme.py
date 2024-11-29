@@ -104,7 +104,8 @@ async def delete_meme_by_id(
     Raises:
         HTTPException: If the meme is not found.
     """
-    deleted_meme_id = await delete_meme(meme_id, database, uow)
-    if not deleted_meme_id:
-        raise HTTPException(status_code=404, detail="Meme not found")
-    return DeleteMemeResponse(detail="Meme deleted successfully")
+    async for session in create_session():
+        deleted_meme_id = await delete_meme(meme_id, database, uow, session)
+        if not deleted_meme_id:
+            raise HTTPException(status_code=404, detail="Meme not found")
+        return DeleteMemeResponse(detail="Meme deleted successfully")

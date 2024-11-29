@@ -48,11 +48,11 @@ class SqlaGateway(DatabaseGateway):
         meme.image_url = meme_data.image_url
         return meme.id
 
-    async def delete_meme_by_id(self, meme_id: int) -> Optional[int]:
+    async def delete_meme_by_id(self, meme_id: int) -> Optional[Meme]:
         result = await self.session.execute(
             select(models.Meme).where(models.Meme.id == meme_id))
         meme = result.scalars().first()
         if not meme:
             return None
         await self.session.delete(meme)
-        return meme.id
+        return Meme.model_validate(meme)

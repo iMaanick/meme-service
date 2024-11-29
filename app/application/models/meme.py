@@ -5,6 +5,7 @@ class Meme(BaseModel):
     id: int
     description: str
     image_url: str
+    filename: str
     model_config = ConfigDict(from_attributes=True)
 
 

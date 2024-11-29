@@ -104,11 +104,37 @@ async def get_memes_data(
     return memes
 
 
+async def delete_file(
+        filename: str,
+        session: ClientSession
+) -> None:
+    try:
+        base_url = os.getenv("PRIVATE_SERVICE_URL", "http://localhost:8001")
+        async with session.delete(
+                f"{base_url}/files/",
+                params={"filename": filename}
+        ) as response:
+            if response.status != 200:
+                raise HTTPException(
+                    status_code=response.status,
+                    detail="Failed to delete file from external service."
+                )
+    except Exception as err:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while deleting the file: {str(err)}"
+        )
+
+
 async def delete_meme(
         meme_id: int,
         database: DatabaseGateway,
         uow: UoW,
+        session: ClientSession,
 ) -> Optional[int]:
-    deleted_meme_id = await database.delete_meme_by_id(meme_id)
+    deleted_meme = await database.delete_meme_by_id(meme_id)
     await uow.commit()
-    return deleted_meme_id
+    if not deleted_meme:
+        return None
+    await delete_file(deleted_meme.filename, session)
+    return deleted_meme.id

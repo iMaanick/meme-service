@@ -35,7 +35,7 @@ class DatabaseGateway(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def delete_meme_by_id(self, meme_id: int) -> Optional[int]:
+    async def delete_meme_by_id(self, meme_id: int) -> Optional[Meme]:
         raise NotImplementedError
 
 

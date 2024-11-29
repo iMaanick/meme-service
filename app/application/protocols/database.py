@@ -31,7 +31,7 @@ class DatabaseGateway(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def update_meme_by_id(self, meme_id: int, meme_data: MemeUpdate) -> Optional[int]:
+    async def update_meme_by_id(self, meme_id: int, description: str, image_url: str, filename: str) -> Optional[int]:
         raise NotImplementedError
 
     @abstractmethod

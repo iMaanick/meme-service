@@ -9,6 +9,12 @@ class Meme(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class MemeData(BaseModel):
+    id: int
+    description: str
+    image_url: str
+
+
 class MemeCreate(BaseModel):
     description: str
     image_url: str

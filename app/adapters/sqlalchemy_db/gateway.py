@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.sqlalchemy_db import models
-from app.application.models.meme import MemeCreate, Meme, MemeUpdate
+from app.application.models.meme import Meme
 from app.application.protocols.database import DatabaseGateway
 
 
@@ -36,7 +36,7 @@ class SqlaGateway(DatabaseGateway):
             return Meme.model_validate(meme)
         return None
 
-    async def update_meme_by_id(self, meme_id: int, meme_data: MemeUpdate) -> Optional[int]:
+    async def update_meme_by_id(self, meme_id: int, description: str, image_url: str, filename: str) -> Optional[int]:
         result = await self.session.execute(
             select(models.Meme).
             where(models.Meme.id == meme_id)
@@ -44,8 +44,9 @@ class SqlaGateway(DatabaseGateway):
         meme = result.scalars().first()
         if not meme:
             return None
-        meme.description = meme_data.description
-        meme.image_url = meme_data.image_url
+        meme.description = description
+        meme.image_url = image_url
+        meme.filename = filename
         return meme.id
 
     async def delete_meme_by_id(self, meme_id: int) -> Optional[Meme]:

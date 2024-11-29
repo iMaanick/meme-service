@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from app.application.file import validate_image_file
 from app.application.meme import get_meme_data, get_memes_data, add_meme, update_meme_by_id, delete_meme, create_session
 from app.application.models import Meme
-from app.application.models.meme import DeleteMemeResponse, UpdateMemeResponse, MemeUpdate
+from app.application.models.meme import DeleteMemeResponse, UpdateMemeResponse, MemeUpdate, MemeData
 from app.application.protocols.database import DatabaseGateway, UoW
 
 meme_router = APIRouter()
@@ -28,13 +28,14 @@ async def create_meme(
         return meme
 
 
-@meme_router.put("/{meme_id}/", response_model=UpdateMemeResponse)
+@meme_router.put("/{meme_id}/", response_model=MemeData)
 async def update_meme(
         meme_id: int,
-        meme_data: MemeUpdate,
+        description: str,
+        file: Annotated[UploadFile, Depends(validate_image_file)],
         database: Annotated[DatabaseGateway, Depends()],
         uow: Annotated[UoW, Depends()],
-) -> UpdateMemeResponse:
+) -> MemeData:
     """
     Update an existing meme by its ID.
 
@@ -44,10 +45,11 @@ async def update_meme(
     Raises:
         HTTPException: If the meme is not found.
     """
-    updated_meme_id = await update_meme_by_id(meme_id, meme_data, database, uow)
-    if not updated_meme_id:
-        raise HTTPException(status_code=404, detail="Meme not found")
-    return UpdateMemeResponse(detail="Meme updated successfully")
+    async for session in create_session():
+        updated_meme = await update_meme_by_id(meme_id, description, file, database, uow, session)
+        if not updated_meme:
+            raise HTTPException(status_code=404, detail="Meme not found")
+        return updated_meme
 
 
 @meme_router.get("/{meme_id}", response_model=Meme)

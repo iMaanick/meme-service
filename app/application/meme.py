@@ -6,6 +6,7 @@ from aiohttp import ClientSession
 from fastapi import UploadFile, HTTPException
 
 from app.application.models import Meme, MemeUpdate
+from app.application.models.meme import MemeData
 from app.application.protocols.database import DatabaseGateway, UoW
 
 
@@ -78,13 +79,29 @@ async def add_meme(
 
 async def update_meme_by_id(
         meme_id: int,
-        meme_data: MemeUpdate,
+        description: str,
+        file: UploadFile,
         database: DatabaseGateway,
         uow: UoW,
-) -> Optional[int]:
-    updated_meme_id = await database.update_meme_by_id(meme_id, meme_data)
+        session: ClientSession,
+
+) -> Optional[Meme]:
+
+    meme = await database.get_meme_by_id(meme_id)
+    if not meme:
+        return None
+    await delete_file(meme.filename, session)
+    filename = await upload_file(file, session)
+    image_url = await get_file_url(filename, session)
+    updated_meme_id = await database.update_meme_by_id(meme_id, description, image_url, filename)
     await uow.commit()
-    return updated_meme_id
+    if not updated_meme_id:
+        return None
+    return MemeData(
+        id=meme_id,
+        description=description,
+        image_url=image_url,
+    )
 
 
 async def get_meme_data(

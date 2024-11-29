@@ -1,28 +1,33 @@
 import io
+import os
 import uuid
 from typing import Optional
 
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
 from fastapi import UploadFile
-from minio import Minio, S3Error
-
-from app.application.protocols.database import S3StorageGateway
 
 
-class MinioGateway(S3StorageGateway):
+class MinioGateway:
     def __init__(self):
-        self.client = Minio(
-            "localhost:9000",
-            access_key="minioadmin",
-            secret_key="minioadmin",
-            secure=False
+        base_url = os.getenv("MINIO_URL", "http://localhost:9000")
+
+        self.client = boto3.client(
+            's3',
+            endpoint_url=base_url,
+            aws_access_key_id="minioadmin",
+            aws_secret_access_key="minioadmin",
+            region_name="us-east-1"
         )
 
         self.bucket_name = "memes-bucket"
         self._ensure_bucket_exists()
 
     def _ensure_bucket_exists(self):
-        if not self.client.bucket_exists(self.bucket_name):
-            self.client.make_bucket(self.bucket_name)
+        try:
+            self.client.head_bucket(Bucket=self.bucket_name)
+        except ClientError:
+            self.client.create_bucket(Bucket=self.bucket_name)
             print(f"Bucket '{self.bucket_name}' created.")
 
     async def upload_file(self, file: UploadFile) -> Optional[str]:
@@ -30,19 +35,29 @@ class MinioGateway(S3StorageGateway):
             unique_filename = f"{uuid.uuid4()}_{file.filename}"
             file_data = await file.read()
 
-            self.client.put_object(self.bucket_name, unique_filename, io.BytesIO(file_data), len(file_data))
+            self.client.put_object(
+                Bucket=self.bucket_name,
+                Key=unique_filename,
+                Body=io.BytesIO(file_data)
+            )
 
             return unique_filename
-        except S3Error as err:
+        except (BotoCoreError, ClientError) as err:
             print(err)
             return None
 
-    async def get_file_url(self, filename: str) -> Optional[str]:
+    async def get_file_url(self, filename: str, expiration: int = 3600) -> Optional[str]:
         try:
             if not self.is_file_exists(filename):
                 return None
-            return self.client.presigned_get_object(self.bucket_name, filename)
-        except S3Error as err:
+
+            url: str = self.client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': self.bucket_name, 'Key': filename},
+                ExpiresIn=expiration
+            )
+            return url.replace("minio:9000", "localhost:9000")
+        except (BotoCoreError, ClientError) as err:
             print(err)
             return None
 
@@ -50,15 +65,17 @@ class MinioGateway(S3StorageGateway):
         try:
             if not self.is_file_exists(filename):
                 return None
-            self.client.remove_object(self.bucket_name, filename)
+
+            self.client.delete_object(Bucket=self.bucket_name, Key=filename)
             return f"File '{filename}' deleted successfully"
-        except S3Error as err:
+        except (BotoCoreError, ClientError) as err:
             print(err)
             return None
 
     def is_file_exists(self, filename: str) -> bool:
         try:
-            self.client.stat_object(self.bucket_name, filename)
+            self.client.head_object(Bucket=self.bucket_name, Key=filename)
             return True
-        except S3Error as err:
+        except ClientError as err:
+            print(err)
             return False

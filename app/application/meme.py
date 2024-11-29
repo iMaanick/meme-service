@@ -1,3 +1,4 @@
+import os
 from typing import Optional, AsyncGenerator
 
 import aiohttp
@@ -25,9 +26,9 @@ async def upload_file(
             filename=file.filename,
             content_type=file.content_type
         )
-
+        base_url = os.getenv("PRIVATE_SERVICE_URL", "http://localhost:8001")
         async with session.post(
-                "http://localhost:8001/files/",
+                f"{base_url}/files/",
                 headers={"accept": "application/json"},
                 data=form_data
         ) as response:
@@ -47,8 +48,9 @@ async def get_file_url(
         session: ClientSession,
 ) -> str:
     try:
+        base_url = os.getenv("PRIVATE_SERVICE_URL", "http://localhost:8001")
         async with session.get(
-                "http://localhost:8001/files/file-url/",
+                f"{base_url}/files/file-url/",
                 params={"filename": filename}
         ) as response:
             if response.status != 200:

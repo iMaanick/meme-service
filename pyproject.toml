@@ -23,6 +23,9 @@ minio = "^7.2.12"
 python-multipart = "^0.0.17"
 
 
+[tool.poetry.group.dev.dependencies]
+alembic = "^1.14.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

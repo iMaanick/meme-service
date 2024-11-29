@@ -12,10 +12,11 @@ class SqlaGateway(DatabaseGateway):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def add_meme(self, meme_data: MemeCreate) -> Meme:
+    async def add_meme(self, description: str, filename: str, image_url: str) -> Meme:
         new_meme = models.Meme(
-            description=meme_data.description,
-            image_url=meme_data.image_url,
+            description=description,
+            image_url=image_url,
+            filename=filename
         )
         self.session.add(new_meme)
         await self.session.commit()

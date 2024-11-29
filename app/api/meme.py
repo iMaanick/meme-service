@@ -1,11 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
-from httpx import AsyncClient
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 
-from app.application.meme import add_meme, update_meme_by_id, get_meme_data, get_memes_data, delete_meme
-from app.application.models import MemeCreate, Meme, MemeUpdate
-from app.application.models.meme import UpdateMemeResponse, DeleteMemeResponse
+from app.application.file import validate_image_file
+from app.application.meme import get_meme_data, get_memes_data, add_meme, update_meme_by_id, delete_meme, create_session
+from app.application.models import Meme
+from app.application.models.meme import DeleteMemeResponse, UpdateMemeResponse, MemeUpdate
 from app.application.protocols.database import DatabaseGateway, UoW
 
 meme_router = APIRouter()
@@ -13,9 +13,9 @@ meme_router = APIRouter()
 
 @meme_router.post("/", response_model=Meme)
 async def create_meme(
-        meme_data: MemeCreate,
+        description: str,
+        file: Annotated[UploadFile, Depends(validate_image_file)],
         database: Annotated[DatabaseGateway, Depends()],
-        http_client: Annotated[AsyncClient, Depends()],
 ) -> Meme:
     """
     Create a new meme.
@@ -23,8 +23,9 @@ async def create_meme(
     Returns:
         Meme: The created meme.
     """
-    meme = await add_meme(meme_data, database)
-    return meme
+    async for session in create_session():
+        meme = await add_meme(description, file, database, session)
+        return meme
 
 
 @meme_router.put("/{meme_id}/", response_model=UpdateMemeResponse)
@@ -72,7 +73,6 @@ async def get_meme(
 @meme_router.get("/", response_model=list[Meme])
 async def get_memes(
         database: Annotated[DatabaseGateway, Depends()],
-        http_client: Annotated[AsyncClient, Depends()],
         skip: int = 0,
         limit: int = 10,
 ) -> list[Meme]:

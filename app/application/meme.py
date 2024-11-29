@@ -1,14 +1,76 @@
-from typing import Optional
+from typing import Optional, AsyncGenerator
 
-from app.application.models import MemeCreate, Meme, MemeUpdate
+import aiohttp
+from aiohttp import ClientSession
+from fastapi import UploadFile, HTTPException
+
+from app.application.models import Meme, MemeUpdate
 from app.application.protocols.database import DatabaseGateway, UoW
 
 
+async def create_session() -> AsyncGenerator[aiohttp.ClientSession, None]:
+    async with aiohttp.ClientSession() as session:
+        yield session
+
+
+async def upload_file(
+        file: UploadFile,
+        session: ClientSession,
+) -> str:
+    try:
+        form_data = aiohttp.FormData()
+        form_data.add_field(
+            'file',
+            await file.read(),
+            filename=file.filename,
+            content_type=file.content_type
+        )
+
+        async with session.post(
+                "http://localhost:8001/files/",
+                headers={"accept": "application/json"},
+                data=form_data
+        ) as response:
+            if response.status != 200:
+                raise HTTPException(status_code=response.status,
+                                    detail="Failed to upload file to external service.")
+
+            upload_file_response = await response.json()
+            filename = upload_file_response['filename']
+            return filename
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"An error occurred while uploading the file: {str(err)}")
+
+
+async def get_file_url(
+        filename: str,
+        session: ClientSession,
+) -> str:
+    try:
+        async with session.get(
+                "http://localhost:8001/files/file-url/",
+                params={"filename": filename}
+        ) as response:
+            if response.status != 200:
+                raise HTTPException(status_code=response.status,
+                                    detail="Failed to get file url from external service.")
+
+            get_file_url_response = await response.json()
+            file_url = get_file_url_response['file_url']
+            return file_url
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"An error occurred while getting url of the file: {str(err)}")
+
+
 async def add_meme(
-        meme_data: MemeCreate,
+        description: str,
+        file: UploadFile,
         database: DatabaseGateway,
+        session: ClientSession,
 ) -> Meme:
-    meme = await database.add_meme(meme_data)
+    filename = await upload_file(file, session)
+    image_url = await get_file_url(filename, session)
+    meme = await database.add_meme(description, filename, image_url)
     return meme
 
 

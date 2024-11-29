@@ -31,7 +31,7 @@ async def delete_file(
     return DeleteFileResponse(detail=result)
 
 
-@private_router.get("/file-url/{filename}", response_model=GetFileUrlResponse)
+@private_router.get("/file-url/", response_model=GetFileUrlResponse)
 async def get_file_url(
         filename: str,
         storage: Annotated[S3StorageGateway, Depends()],

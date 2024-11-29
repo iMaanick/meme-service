@@ -19,7 +19,7 @@ class UoW(ABC):
 class DatabaseGateway(ABC):
 
     @abstractmethod
-    async def add_meme(self, price_data: MemeCreate) -> Meme:
+    async def add_meme(self, description: str, filename: str, image_url: str) -> Meme:
         raise NotImplementedError
 
     @abstractmethod

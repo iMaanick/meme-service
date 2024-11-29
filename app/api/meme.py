@@ -11,12 +11,12 @@ from app.application.protocols.database import DatabaseGateway, UoW
 meme_router = APIRouter()
 
 
-@meme_router.post("/", response_model=Meme)
+@meme_router.post("/", response_model=MemeData)
 async def create_meme(
         description: str,
         file: Annotated[UploadFile, Depends(validate_image_file)],
         database: Annotated[DatabaseGateway, Depends()],
-) -> Meme:
+) -> MemeData:
     """
     Create a new meme.
 
@@ -52,11 +52,11 @@ async def update_meme(
         return updated_meme
 
 
-@meme_router.get("/{meme_id}", response_model=Meme)
+@meme_router.get("/{meme_id}", response_model=MemeData)
 async def get_meme(
         meme_id: int,
         database: Annotated[DatabaseGateway, Depends()],
-) -> Meme:
+) -> MemeData:
     """
     Retrieve a specific meme by its ID.
 
@@ -72,21 +72,18 @@ async def get_meme(
     return meme
 
 
-@meme_router.get("/", response_model=list[Meme])
+@meme_router.get("/", response_model=list[MemeData])
 async def get_memes(
         database: Annotated[DatabaseGateway, Depends()],
         skip: int = 0,
         limit: int = 10,
-) -> list[Meme]:
+) -> list[MemeData]:
     """
     Retrieve a list of memes with pagination.
 
     Returns:
         list[Meme]: List of memes.
     """
-    # response = await http_client.post("http://localhost:8001/memes/")
-    # # response = await http_client.get("http://private_service:8001/memes/")
-    # print(response.json())
     memes = await get_memes_data(skip, limit, database)
     return memes
 

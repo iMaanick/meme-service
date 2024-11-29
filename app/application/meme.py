@@ -85,7 +85,7 @@ async def update_meme_by_id(
         uow: UoW,
         session: ClientSession,
 
-) -> Optional[Meme]:
+) -> Optional[MemeData]:
 
     meme = await database.get_meme_by_id(meme_id)
     if not meme:

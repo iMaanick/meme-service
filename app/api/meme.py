@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from app.application.file import validate_image_file
 from app.application.meme import get_meme_data, get_memes_data, add_meme, update_meme_by_id, delete_meme, create_session
 from app.application.models import Meme
-from app.application.models.meme import DeleteMemeResponse, UpdateMemeResponse, MemeUpdate, MemeData
+from app.application.models.meme import DeleteMemeResponse, MemeData
 from app.application.protocols.database import DatabaseGateway, UoW
 
 meme_router = APIRouter()
@@ -21,7 +21,7 @@ async def create_meme(
     Create a new meme.
 
     Returns:
-        Meme: The created meme.
+        MemeData: The created meme data.
     """
     async for session in create_session():
         meme = await add_meme(description, file, database, session)
@@ -41,7 +41,7 @@ async def update_meme(
     Update an existing meme by its ID.
 
     Returns:
-        UpdateMemeResponse: Response indicating the update status.
+        MemeData: The updated meme data.
 
     Raises:
         HTTPException: If the meme is not found.
@@ -63,7 +63,7 @@ async def get_meme(
     Retrieve a specific meme by its ID.
 
     Returns:
-        Meme: The retrieved meme.
+        MemeData: The retrieved meme.
 
     Raises:
         HTTPException: If the meme is not found.
@@ -84,7 +84,7 @@ async def get_memes(
     Retrieve a list of memes with pagination.
 
     Returns:
-        list[Meme]: List of memes.
+        list[MemeData]: List of memes.
     """
     memes = await get_memes_data(skip, limit, database)
     return memes

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 
 index_router = APIRouter()
 

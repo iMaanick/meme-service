@@ -14,7 +14,7 @@ async def test_update_meme_success(
         mock_database_gateway: AsyncMock,
         mock_uow: AsyncMock,
         monkeypatch: MonkeyPatch
-):
+) -> None:
     mock_database_gateway.get_meme_by_id.return_value = Meme(
         id=1, description="Old Meme", image_url="http://example.com/old.jpg", filename="old.jpg"
     )
@@ -44,7 +44,7 @@ async def test_update_meme_not_found(
         mock_database_gateway: AsyncMock,
         mock_uow: AsyncMock,
         monkeypatch: MonkeyPatch
-):
+) -> None:
     mock_database_gateway.get_meme_by_id.return_value = None
     src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
     with open(os.path.join(src_dir, "test_files/test_file.jpg"), "rb") as test_file:

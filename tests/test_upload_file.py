@@ -6,7 +6,7 @@ from starlette.testclient import TestClient
 
 
 @pytest.mark.asyncio
-async def test_upload_file_success(private_client: TestClient, mock_storage_gateway: AsyncMock):
+async def test_upload_file_success(private_client: TestClient, mock_storage_gateway: AsyncMock) -> None:
     mock_storage_gateway.upload_file.return_value = "test_file.jpg"
     src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
     with open(os.path.join(src_dir, "test_files/test_file.jpg"), "rb") as test_file:
@@ -25,7 +25,7 @@ async def test_upload_file_success(private_client: TestClient, mock_storage_gate
 
 
 @pytest.mark.asyncio
-async def test_upload_file_invalid_file_type(private_client: TestClient):
+async def test_upload_file_invalid_file_type(private_client: TestClient) -> None:
     src_dir = os.path.normpath(os.path.join(__file__, os.path.pardir))
     with open(os.path.join(src_dir, "test_files/test_invalid.txt"), "rb") as test_file:
         response = private_client.post(

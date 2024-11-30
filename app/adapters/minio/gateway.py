@@ -11,7 +11,7 @@ from app.application.protocols.database import S3StorageGateway
 
 
 class MinioGateway(S3StorageGateway):
-    def __init__(self):
+    def __init__(self) -> None:
         base_url = os.getenv("MINIO_URL", "http://localhost:9000")
         self.client = boto3.client(
             's3',
@@ -24,7 +24,7 @@ class MinioGateway(S3StorageGateway):
         self.bucket_name = "memes-bucket"
         self._ensure_bucket_exists()
 
-    def _ensure_bucket_exists(self):
+    def _ensure_bucket_exists(self) -> None:
         try:
             self.client.head_bucket(Bucket=self.bucket_name)
         except ClientError:

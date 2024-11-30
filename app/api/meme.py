@@ -16,7 +16,7 @@ async def create_meme(
         description: str,
         file: Annotated[UploadFile, Depends(validate_image_file)],
         database: Annotated[DatabaseGateway, Depends()],
-) -> MemeData:
+) -> Meme:
     """
     Create a new meme.
 
@@ -26,6 +26,7 @@ async def create_meme(
     async for session in create_session():
         meme = await add_meme(description, file, database, session)
         return meme
+    raise RuntimeError("Failed to create meme, session not initialized.")
 
 
 @meme_router.put("/{meme_id}", response_model=MemeData)
@@ -50,13 +51,14 @@ async def update_meme(
         if not updated_meme:
             raise HTTPException(status_code=404, detail="Meme not found")
         return updated_meme
+    raise RuntimeError("Failed to update meme, session not initialized.")
 
 
 @meme_router.get("/{meme_id}", response_model=MemeData)
 async def get_meme(
         meme_id: int,
         database: Annotated[DatabaseGateway, Depends()],
-) -> MemeData:
+) -> Meme:
     """
     Retrieve a specific meme by its ID.
 
@@ -77,7 +79,7 @@ async def get_memes(
         database: Annotated[DatabaseGateway, Depends()],
         skip: int = 0,
         limit: int = 10,
-) -> list[MemeData]:
+) -> list[Meme]:
     """
     Retrieve a list of memes with pagination.
 
@@ -108,3 +110,4 @@ async def delete_meme_by_id(
         if not deleted_meme_id:
             raise HTTPException(status_code=404, detail="Meme not found")
         return DeleteMemeResponse(detail="Meme deleted successfully")
+    raise RuntimeError("Failed to delete meme, session not initialized.")

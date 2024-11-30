@@ -50,5 +50,5 @@ class S3StorageGateway(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_file_url(self, file_name: str) -> str:
+    async def get_file_url(self, filename: str, expiration: int = 3600) -> Optional[str]:
         raise NotImplementedError

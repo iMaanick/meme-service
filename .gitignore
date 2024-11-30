@@ -23,7 +23,6 @@ archive.zip
 .idea/*
 /app/main/test.py
 /minio_data/
-/docker-compose.minio.yml
 /docker-compose.minio2.yml
 /main.py
 /minio/

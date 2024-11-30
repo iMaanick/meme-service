@@ -90,7 +90,7 @@ async def get_memes(
     return memes
 
 
-@meme_router.delete("/", response_model=DeleteMemeResponse)
+@meme_router.delete("/{meme_id}", response_model=DeleteMemeResponse)
 async def delete_meme_by_id(
         meme_id: int,
         database: Annotated[DatabaseGateway, Depends()],

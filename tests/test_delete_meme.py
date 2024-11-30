@@ -22,7 +22,7 @@ async def test_delete_meme_by_id(
     )
     monkeypatch.setattr("app.application.meme.delete_file", AsyncMock())
 
-    response = client.delete("/memes/?meme_id=1")
+    response = client.delete("/memes/1")
 
     assert response.status_code == 200
     assert response.json() == {"detail": "Meme deleted successfully"}
@@ -38,7 +38,7 @@ async def test_delete_meme_not_found(
 ) -> None:
     mock_database_gateway.delete_meme_by_id.return_value = None
 
-    response = client.delete("/memes/", params={"meme_id": 999})
+    response = client.delete("/memes/999")
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Meme not found"}

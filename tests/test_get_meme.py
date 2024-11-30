@@ -1,7 +1,6 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from _pytest.monkeypatch import MonkeyPatch
 from starlette.testclient import TestClient
 
 from app.application.models import Meme

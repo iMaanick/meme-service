@@ -28,7 +28,7 @@ async def create_meme(
         return meme
 
 
-@meme_router.put("/{meme_id}/", response_model=MemeData)
+@meme_router.put("/{meme_id}", response_model=MemeData)
 async def update_meme(
         meme_id: int,
         description: str,

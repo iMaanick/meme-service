@@ -1,14 +1,12 @@
 from unittest.mock import AsyncMock
 
-import pytest
 from _pytest.monkeypatch import MonkeyPatch
 from starlette.testclient import TestClient
 
 from app.application.models import Meme
 
 
-@pytest.mark.asyncio
-async def test_delete_meme_by_id(
+def test_delete_meme_by_id(
         client: TestClient,
         mock_database_gateway: AsyncMock,
         mock_uow: AsyncMock,
@@ -31,8 +29,7 @@ async def test_delete_meme_by_id(
     mock_uow.commit.assert_called_once()
 
 
-@pytest.mark.asyncio
-async def test_delete_meme_not_found(
+def test_delete_meme_not_found(
         client: TestClient,
         mock_database_gateway: AsyncMock,
 ) -> None:

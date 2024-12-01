@@ -1,13 +1,11 @@
 from unittest.mock import AsyncMock
 
-import pytest
 from starlette.testclient import TestClient
 
 from app.application.models import Meme
 
 
-@pytest.mark.asyncio
-async def test_get_meme_success(client: TestClient, mock_database_gateway: AsyncMock) -> None:
+def test_get_meme_success(client: TestClient, mock_database_gateway: AsyncMock) -> None:
     mock_database_gateway.get_meme_by_id.return_value = Meme(
         id=1, description="Test Meme", image_url="http://example.com/test.jpg", filename="test.jpg"
     )
@@ -21,8 +19,7 @@ async def test_get_meme_success(client: TestClient, mock_database_gateway: Async
     }
 
 
-@pytest.mark.asyncio
-async def test_get_meme_not_found(client: TestClient, mock_database_gateway: AsyncMock) -> None:
+def test_get_meme_not_found(client: TestClient, mock_database_gateway: AsyncMock) -> None:
     mock_database_gateway.get_meme_by_id.return_value = None
 
     response = client.get("/memes/999")

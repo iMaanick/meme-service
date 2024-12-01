@@ -1,15 +1,13 @@
 import os
 from unittest.mock import AsyncMock
 
-import pytest
 from _pytest.monkeypatch import MonkeyPatch
 from starlette.testclient import TestClient
 
 from app.application.models import Meme
 
 
-@pytest.mark.asyncio
-async def test_update_meme_success(
+def test_update_meme_success(
         client: TestClient,
         mock_database_gateway: AsyncMock,
         mock_uow: AsyncMock,
@@ -38,8 +36,7 @@ async def test_update_meme_success(
     }
 
 
-@pytest.mark.asyncio
-async def test_update_meme_not_found(
+def test_update_meme_not_found(
         client: TestClient,
         mock_database_gateway: AsyncMock,
         mock_uow: AsyncMock,
